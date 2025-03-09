@@ -1,11 +1,12 @@
 #include "Application.h"
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 
 namespace Ebony {
 
-void Application::Run() {
+void Application::Run() const {
     std::cerr << "Hello from Ebony!" << std::endl;
 
     std::ofstream render(std::filesystem::path("./image.ppm"));

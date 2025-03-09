@@ -9,7 +9,7 @@ public:
     Application() = default;
     ~Application() = default;
 
-    void Run();
+    void Run() const;
 
 private:
     uint32_t imageWidth = 256;

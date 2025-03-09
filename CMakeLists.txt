@@ -4,9 +4,9 @@ project(EbonyProject)
 
 add_executable(demo main.cpp)
 
-target_include_directories(demo PRIVATE src)
+target_include_directories(demo PRIVATE Ebony/src)
 
-add_subdirectory(src)
+add_subdirectory(Ebony)
 target_link_libraries(demo PRIVATE Ebony)
 
 set_target_properties(demo PROPERTIES
