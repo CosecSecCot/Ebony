@@ -21,8 +21,8 @@ Executable is going to be in:
 
 ```sh
 # For Debug build
-Ebony/bin/Debug/demo/
+bin/Debug/demo/
 
 # For Release build
-Ebony/bin/Release/demo/
+bin/Release/demo/
 ```
