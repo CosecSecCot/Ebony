@@ -1,5 +1,7 @@
 #include "Application.h"
-#include "GLFW/glfw3.h"
+#include "Renderer/Buffer.h"
+#include "Renderer/Shader.h"
+#include "Renderer/VertexArray.h"
 #include "Timer.h"
 
 #include <glad/glad.h>
@@ -8,6 +10,22 @@
 #include <iostream>
 
 namespace Ebony {
+
+const char *vertexSrc = R"(
+#version 420 core
+layout(location = 0) in vec3 a_Position;
+void main() {
+    gl_Position = vec4(a_Position, 1.0);
+}
+)";
+
+const char *fragmentSrc = R"(
+#version 420 core
+out vec4 FragColor;
+void main() {
+    FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+}
+)";
 
 static void GLFWErrorCallback(int error, const char *description) {
     std::cerr << "GLFW ERROR: " << description << std::endl;
@@ -61,6 +79,27 @@ void Application::Run() const {
 
     Ebony::Timer timer;
 
+    // === Create triangle data ===
+    float vertices[] = {
+        0.0f,  0.5f,  0.0f, // top
+        -0.5f, -0.5f, 0.0f, // bottom left
+        0.5f,  -0.5f, 0.0f  // bottom right
+    };
+
+    uint32_t indices[] = {0, 1, 2};
+
+    // === Set up buffers ===
+    auto vertexArray = std::unique_ptr<Ebony::VertexArray>(Ebony::VertexArray::Create());
+    auto vertexBuffer = std::shared_ptr<Ebony::VertexBuffer>(Ebony::VertexBuffer::Create(vertices, sizeof(vertices)));
+    vertexBuffer->SetLayout({{Ebony::ShaderDataType::Float3, "a_Position"}});
+    vertexArray->AddVertexBuffer(vertexBuffer);
+
+    auto indexBuffer = std::shared_ptr<Ebony::IndexBuffer>(Ebony::IndexBuffer::Create(indices, 3));
+    vertexArray->SetIndexBuffer(indexBuffer);
+
+    // === Compile shader manually ===
+    auto shader = std::unique_ptr<Ebony::Shader>(Ebony::Shader::Create(vertexSrc, fragmentSrc));
+
     while (!glfwWindowShouldClose(appWindow)) {
         timer.Tick();
 
@@ -71,6 +110,10 @@ void Application::Run() const {
 
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        shader->Bind();
+        vertexArray->Bind();
+        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 
         glfwSwapBuffers(appWindow);
         glfwPollEvents();
