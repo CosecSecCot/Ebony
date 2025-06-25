@@ -1,5 +1,8 @@
 AccessModifierOffset: -4
 AlignConsecutiveMacros: Consecutive
+AlignTrailingComments: true
 BasedOnStyle: LLVM
-IndentWidth: 4
 ColumnLimit: 120
+CommentPragmas: '^///'
+IndentWidth: 4
+ReflowComments: false
