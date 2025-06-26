@@ -13,6 +13,8 @@ add_library(Ebony STATIC
     src/Renderer/Buffer.h
     src/Renderer/BufferLayout.cpp
     src/Renderer/BufferLayout.h
+    src/Renderer/Renderer.cpp
+    src/Renderer/Renderer.h
     src/Renderer/Shader.cpp
     src/Renderer/Shader.h
     src/Renderer/ShaderDataType.h
@@ -31,8 +33,9 @@ target_include_directories(Ebony PRIVATE
     src
     ./vendor/GLFW/include
     ./vendor/Glad/include
+    ./vendor/GLM
 )
 
-target_link_libraries(Ebony PRIVATE glfw glad)
+target_link_libraries(Ebony PRIVATE glfw glad glm)
 
 set_property(TARGET Ebony PROPERTY CXX_STANDARD 17)

@@ -1,3 +1,6 @@
 [submodule "Ebony/vendor/GLFW"]
 	path = Ebony/vendor/GLFW
 	url = git@github.com:glfw/glfw.git
+[submodule "Ebony/vendor/GLM"]
+	path = Ebony/vendor/GLM
+	url = git@github.com:g-truc/glm.git

@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "Renderer/Buffer.h"
+#include "Renderer/Renderer.h"
 #include "Renderer/Shader.h"
 #include "Renderer/VertexArray.h"
 #include "Timer.h"
@@ -77,7 +78,7 @@ Application::~Application() {
 void Application::Run() const {
     std::cerr << "Hello from Ebony Engine!" << std::endl;
 
-    Ebony::Timer timer;
+    Timer timer;
 
     // === Create triangle data ===
     float vertices[] = {
@@ -88,17 +89,16 @@ void Application::Run() const {
 
     uint32_t indices[] = {0, 1, 2};
 
-    // === Set up buffers ===
-    auto vertexArray = std::unique_ptr<Ebony::VertexArray>(Ebony::VertexArray::Create());
-    auto vertexBuffer = std::shared_ptr<Ebony::VertexBuffer>(Ebony::VertexBuffer::Create(vertices, sizeof(vertices)));
-    vertexBuffer->SetLayout({{Ebony::ShaderDataType::Float3, "a_Position"}});
+    auto vertexArray = std::shared_ptr<VertexArray>(VertexArray::Create());
+    auto vertexBuffer = std::shared_ptr<VertexBuffer>(VertexBuffer::Create(vertices, sizeof(vertices)));
+    vertexBuffer->SetLayout({{ShaderDataType::Float3, "a_Position"}});
     vertexArray->AddVertexBuffer(vertexBuffer);
-
-    auto indexBuffer = std::shared_ptr<Ebony::IndexBuffer>(Ebony::IndexBuffer::Create(indices, 3));
+    auto indexBuffer = std::shared_ptr<IndexBuffer>(IndexBuffer::Create(indices, 3));
     vertexArray->SetIndexBuffer(indexBuffer);
 
-    // === Compile shader manually ===
-    auto shader = std::unique_ptr<Ebony::Shader>(Ebony::Shader::Create(vertexSrc, fragmentSrc));
+    auto shader = std::shared_ptr<Shader>(Shader::Create(vertexSrc, fragmentSrc));
+
+    Renderer::Init();
 
     while (!glfwWindowShouldClose(appWindow)) {
         timer.Tick();
@@ -108,12 +108,12 @@ void Application::Run() const {
             glfwSetWindowTitle(appWindow, title.c_str());
         }
 
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        Renderer::SetClearColor({0.1f, 0.1f, 0.1f, 1.0f});
+        Renderer::Clear();
 
-        shader->Bind();
-        vertexArray->Bind();
-        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+        Renderer::BeginRender();
+        Renderer::Submit(shader, vertexArray);
+        Renderer::EndRender();
 
         glfwSwapBuffers(appWindow);
         glfwPollEvents();

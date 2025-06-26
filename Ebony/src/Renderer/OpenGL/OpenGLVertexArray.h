@@ -24,6 +24,11 @@ public:
     void AddVertexBuffer(std::shared_ptr<VertexBuffer> vertexBuffer) override;
     void SetIndexBuffer(std::shared_ptr<IndexBuffer> indexBuffer) override;
 
+    [[nodiscard]] const std::vector<std::shared_ptr<VertexBuffer>> &GetVertexBuffers() const override {
+        return vertexBuffers;
+    }
+    [[nodiscard]] const std::shared_ptr<IndexBuffer> &GetIndexBuffer() const override { return indexBuffer; }
+
 private:
     uint32_t rendererID;
     uint32_t attributeIndex = 0;
