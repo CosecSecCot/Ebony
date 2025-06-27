@@ -4,3 +4,7 @@
 [submodule "Ebony/vendor/GLM"]
 	path = Ebony/vendor/GLM
 	url = git@github.com:g-truc/glm.git
+[submodule "Ebony/vendor/ImGui"]
+	path = Ebony/vendor/ImGui
+	url = git@github.com:ocornut/imgui.git
+	branch = docking

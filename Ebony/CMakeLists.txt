@@ -34,8 +34,11 @@ target_include_directories(Ebony PRIVATE
     ./vendor/GLFW/include
     ./vendor/Glad/include
     ./vendor/GLM
+    ./vendor/ImGui
+    ./vendor/ImGui/backends
 )
 
-target_link_libraries(Ebony PRIVATE glfw glad glm)
+find_package(OpenGL REQUIRED)
+target_link_libraries(Ebony PRIVATE glfw glad glm imgui OpenGL::GL)
 
 set_property(TARGET Ebony PROPERTY CXX_STANDARD 17)

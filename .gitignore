@@ -67,6 +67,9 @@ Thumbs.db
 *.swp
 *.swo
 
+# Ignore ImGui generated files or caches
+imgui.ini
+
 # Ignore CLion project files
 .idea/
 *.iml
