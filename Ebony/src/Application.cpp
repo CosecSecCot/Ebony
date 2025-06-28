@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "Renderer/Buffer.h"
+#include "Renderer/FrameBuffer.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/Shader.h"
 #include "Renderer/VertexArray.h"
@@ -241,21 +242,24 @@ void Application::Run() const {
 
     Timer timer;
 
-    // === Create triangle data ===
+    // clang-format off
     float vertices[] = {
-        0.0f,  0.5f,  0.0f, // top
-        -0.5f, -0.5f, 0.0f, // bottom left
-        0.5f,  -0.5f, 0.0f  // bottom right
+        1.0f,   1.0f,  0.0f,
+        1.0f,  -1.0f,  0.0f,
+       -1.0f,  -1.0f,  0.0f,
+       -1.0f,   1.0f,  0.0f 
     };
+    // clang-format on
 
-    uint32_t indices[] = {0, 1, 2};
+    uint32_t indices[] = {2, 0, 1, 2, 3, 0};
 
     auto vertexArray = std::shared_ptr<VertexArray>(VertexArray::Create());
     auto vertexBuffer = std::shared_ptr<VertexBuffer>(VertexBuffer::Create(vertices, sizeof(vertices)));
     vertexBuffer->SetLayout({{ShaderDataType::Float3, "a_Position"}});
     vertexArray->AddVertexBuffer(vertexBuffer);
-    auto indexBuffer = std::shared_ptr<IndexBuffer>(IndexBuffer::Create(indices, 3));
+    auto indexBuffer = std::shared_ptr<IndexBuffer>(IndexBuffer::Create(indices, 6));
     vertexArray->SetIndexBuffer(indexBuffer);
+    auto framebuffer = std::shared_ptr<FrameBuffer>(FrameBuffer::Create(FramebufferSpecification{}));
 
     auto shader = std::shared_ptr<Shader>(Shader::Create(vertexSrc, fragmentSrc));
 
@@ -269,13 +273,32 @@ void Application::Run() const {
             glfwSetWindowTitle(appWindow, title.c_str());
         }
 
-        Renderer::SetClearColor({0.1f, 0.1f, 0.1f, 1.0f});
-        Renderer::Clear();
-
         Renderer::BeginRender();
 
-        ImGui::ShowDemoWindow();
+        // GUI
+        if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DockingEnable) {
+            ImGui::DockSpaceOverViewport(-1, ImGui::GetMainViewport());
+        }
+
+        ImGui::Begin("Viewport");
+        // Resize framebuffer if needed
+        ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+        if (viewportSize.x > 0 && viewportSize.y > 0 &&
+            (framebuffer->GetSpecification().width != (uint32_t)viewportSize.x ||
+             framebuffer->GetSpecification().height != (uint32_t)viewportSize.y)) {
+            framebuffer->Resize((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
+        }
+        ImGui::Image(framebuffer->GetColorAttachmentRendererID(), viewportSize, ImVec2(0, 1),
+                     ImVec2(1, 0) // Flip UVs for OpenGL
+        );
+        ImGui::End();
+
+        // Rendering
+        framebuffer->Bind();
+        Renderer::SetClearColor({0.1f, 0.1f, 0.1f, 1.0f});
+        Renderer::Clear();
         Renderer::Submit(shader, vertexArray);
+        framebuffer->Unbind();
 
         Renderer::EndRender();
 

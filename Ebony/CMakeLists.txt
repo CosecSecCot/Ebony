@@ -5,6 +5,8 @@ project(Ebony)
 add_library(Ebony STATIC
     src/Renderer/OpenGL/OpenGLBuffer.cpp
     src/Renderer/OpenGL/OpenGLBuffer.h
+    src/Renderer/OpenGL/OpenGLFrameBuffer.cpp
+    src/Renderer/OpenGL/OpenGLFrameBuffer.h
     src/Renderer/OpenGL/OpenGLShader.cpp
     src/Renderer/OpenGL/OpenGLShader.h
     src/Renderer/OpenGL/OpenGLVertexArray.cpp
@@ -13,6 +15,8 @@ add_library(Ebony STATIC
     src/Renderer/Buffer.h
     src/Renderer/BufferLayout.cpp
     src/Renderer/BufferLayout.h
+    src/Renderer/FrameBuffer.cpp
+    src/Renderer/FrameBuffer.h
     src/Renderer/Renderer.cpp
     src/Renderer/Renderer.h
     src/Renderer/Shader.cpp
