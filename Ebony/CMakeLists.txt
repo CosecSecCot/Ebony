@@ -24,6 +24,8 @@ add_library(Ebony STATIC
     src/Renderer/ShaderDataType.h
     src/Renderer/VertexArray.cpp
     src/Renderer/VertexArray.h
+    src/Utils/FileUtils.cpp
+    src/Utils/FileUtils.h
     src/Timer.cpp
     src/Timer.h
     src/Application.cpp
@@ -44,5 +46,8 @@ target_include_directories(Ebony PRIVATE
 
 find_package(OpenGL REQUIRED)
 target_link_libraries(Ebony PRIVATE glfw glad glm imgui OpenGL::GL)
+
+target_compile_definitions(Ebony PRIVATE BASIC_FRAG_SHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/src/Shaders/Basic.frag")
+target_compile_definitions(Ebony PRIVATE BASIC_VERT_SHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/src/Shaders/Basic.vert")
 
 set_property(TARGET Ebony PROPERTY CXX_STANDARD 17)

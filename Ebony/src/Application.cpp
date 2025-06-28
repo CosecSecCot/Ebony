@@ -15,41 +15,6 @@
 #include <iostream>
 
 namespace Ebony {
-
-#ifdef __APPLE__
-const char *vertexSrc = R"(
-#version 410 core
-layout(location = 0) in vec3 a_Position;
-void main() {
-    gl_Position = vec4(a_Position, 1.0);
-}
-)";
-
-const char *fragmentSrc = R"(
-#version 410 core
-out vec4 FragColor;
-void main() {
-    FragColor = vec4(1.0, 0.0, 1.0, 1.0);
-}
-)";
-#else
-const char *vertexSrc = R"(
-#version 420 core
-layout(location = 0) in vec3 a_Position;
-void main() {
-    gl_Position = vec4(a_Position, 1.0);
-}
-)";
-
-const char *fragmentSrc = R"(
-#version 420 core
-out vec4 FragColor;
-void main() {
-    FragColor = vec4(1.0, 0.0, 1.0, 1.0);
-}
-)";
-#endif
-
 static void GLFWErrorCallback(int error, const char *description) {
     std::cerr << "GLFW ERROR: " << description << std::endl;
 }
@@ -261,7 +226,7 @@ void Application::Run() const {
     vertexArray->SetIndexBuffer(indexBuffer);
     auto framebuffer = std::shared_ptr<FrameBuffer>(FrameBuffer::Create(FramebufferSpecification{}));
 
-    auto shader = std::shared_ptr<Shader>(Shader::Create(vertexSrc, fragmentSrc));
+    auto shader = std::shared_ptr<Shader>(Shader::CreateFromFiles(BASIC_VERT_SHADER_PATH, BASIC_FRAG_SHADER_PATH));
 
     Renderer::Init();
 
@@ -280,6 +245,17 @@ void Application::Run() const {
             ImGui::DockSpaceOverViewport(-1, ImGui::GetMainViewport());
         }
 
+        ImGui::BeginMainMenuBar();
+        if (ImGui::BeginMenu("File")) {
+            ImGui::Separator();
+            if (ImGui::MenuItem("Quit")) {
+                break;
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin("Viewport");
         // Resize framebuffer if needed
         ImVec2 viewportSize = ImGui::GetContentRegionAvail();
@@ -291,6 +267,11 @@ void Application::Run() const {
         ImGui::Image(framebuffer->GetColorAttachmentRendererID(), viewportSize, ImVec2(0, 1),
                      ImVec2(1, 0) // Flip UVs for OpenGL
         );
+        ImGui::End();
+        ImGui::PopStyleVar();
+
+        ImGui::Begin("Project");
+        ImGui::Text("Last Render: %fms", timer.GetDeltaTime() * 1000.0f);
         ImGui::End();
 
         // Rendering

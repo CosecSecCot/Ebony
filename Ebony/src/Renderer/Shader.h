@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <string>
 
 namespace Ebony {
@@ -17,6 +18,7 @@ public:
     virtual void SetUniformFloat4(const std::string &name, float x, float y, float z, float w) = 0;
 
     static Shader *Create(const std::string &vertexSrc, const std::string &fragmentSrc);
+    static Shader *CreateFromFiles(const std::filesystem::path &vertexPath, const std::filesystem::path &fragmentPath);
 };
 
 } // namespace Ebony
