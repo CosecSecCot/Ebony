@@ -1,4 +1,4 @@
-#include "Renderer/Framebuffer.h"
+#include "Renderer/FrameBuffer.h"
 #include "Renderer/OpenGL/OpenGLFramebuffer.h"
 
 namespace Ebony {

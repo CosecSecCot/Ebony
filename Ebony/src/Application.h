@@ -3,6 +3,8 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include "UI/UIManager.h"
+
 namespace Ebony {
 
 /**
@@ -19,10 +21,11 @@ public:
     ~Application();
 
     /// Runs the main engine loop until the window is closed.
-    void Run() const;
+    void Run();
 
 private:
     GLFWwindow *appWindow; ///< Handle to the main GLFW window.
+    UIManager ui;          ///< Main UI manager.
 };
 
 } // namespace Ebony
