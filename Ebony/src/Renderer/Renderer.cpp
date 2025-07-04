@@ -26,6 +26,27 @@ void Renderer::EndRender() {
     }
 }
 
+void Renderer::UploadSceneToShader(const Scene &scene, const std::shared_ptr<Shader> &shader) {
+    const auto &spheres = scene.GetSpheres();
+    int sphereCount = static_cast<int>(spheres.size());
+
+    shader->SetUniformInt("u_SphereCount", sphereCount);
+
+    for (int i = 0; i < sphereCount; ++i) {
+        const auto &s = spheres[i];
+
+        shader->SetUniformFloat3("u_Spheres[" + std::to_string(i) + "].center", s.center.x, s.center.y, s.center.z);
+        shader->SetUniformFloat("u_Spheres[" + std::to_string(i) + "].radius", s.radius);
+
+        shader->SetUniformFloat4("u_Spheres[" + std::to_string(i) + "].material.color", s.material.color.x,
+                                 s.material.color.y, s.material.color.z, s.material.color.w);
+        shader->SetUniformFloat3("u_Spheres[" + std::to_string(i) + "].material.emission", s.material.emission.x,
+                                 s.material.emission.y, s.material.emission.z);
+        shader->SetUniformFloat("u_Spheres[" + std::to_string(i) + "].material.emissionStrength",
+                                s.material.emissionStrength);
+    }
+}
+
 void Renderer::Submit(const std::shared_ptr<Shader> &shader, const std::shared_ptr<VertexArray> &vertexArray) {
     shader->Bind();
     vertexArray->Bind();

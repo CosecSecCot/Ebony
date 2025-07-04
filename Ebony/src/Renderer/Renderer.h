@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Renderer/Scene/Scene.h"
 #include "Renderer/Shader.h"
 #include "Renderer/VertexArray.h"
 
@@ -15,6 +16,7 @@ public:
     static void BeginRender(); // Later: pass camera, viewProj
     static void EndRender();
 
+    static void UploadSceneToShader(const Scene &scene, const std::shared_ptr<Shader> &shader);
     static void Submit(const std::shared_ptr<Shader> &shader, const std::shared_ptr<VertexArray> &vertexArray);
 
     static void Init();

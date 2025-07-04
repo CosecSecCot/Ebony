@@ -7,6 +7,7 @@
 #include "Timer.h"
 
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -66,7 +67,7 @@ Application::Application() {
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
     // Credits: https://github.com/ocornut/imgui/issues/707#issuecomment-2605839926
     ImGuiStyle &style = ImGui::GetStyle();
@@ -176,15 +177,17 @@ Application::Application() {
 
     // Reduced Padding and Spacing
     style.WindowPadding = ImVec2(5.0f, 5.0f);
+    style.WindowBorderSize = 0;
     style.FramePadding = ImVec2(4.0f, 3.0f);
     style.ItemSpacing = ImVec2(6.0f, 4.0f);
     style.ItemInnerSpacing = ImVec2(4.0f, 4.0f);
 
     // Font Scaling
-    io.FontGlobalScale = 0.95f;
-    io.Fonts->AddFontDefault();
-    float baseFontSize = 18.0f;
+    io.FontGlobalScale = 1.0f;
+    float baseFontSize = 14.0f;
     float iconFontSize = baseFontSize * 2.0f / 3.0f;
+    // io.Fonts->AddFontDefault();
+    io.Fonts->AddFontFromFileTTF(INTER_FONT_PATH, baseFontSize);
 
     ImGui_ImplGlfw_InitForOpenGL(appWindow, true);
 #ifdef __APPLE__
@@ -228,10 +231,24 @@ void Application::Run() const {
 
     auto shader = std::shared_ptr<Shader>(Shader::CreateFromFiles(BASIC_VERT_SHADER_PATH, BASIC_FRAG_SHADER_PATH));
 
+    Scene scene;
+    scene.AddSphere({glm::vec3(0.5f, 0.5f, -0.5f), 0.5f, RayTracingMaterial{glm::vec4(1), glm::vec3(1), 0.0f}});
+    scene.AddSphere(
+        {glm::vec3(0.0f, 0.0f, -2.0f), 0.75f, RayTracingMaterial{glm::vec4(glm::vec3(0.5), 1), glm::vec3(1), 0.0f}});
+
     Renderer::Init();
+
+    // Uniforms
+    float u_AspectRatio = 1280.0f / 720.0f;
+    float u_CameraFocalLength = 1.0f;
+    float u_ViewPortSize = 2.0f;
+    uint32_t u_MaxBounceCount = 3;
+    uint32_t u_RaysPerPixel = 2;
+    uint32_t u_NumRenderedFrames = 0;
 
     while (!glfwWindowShouldClose(appWindow)) {
         timer.Tick();
+        u_NumRenderedFrames++;
 
         if (timer.ShouldUpdateFPS()) {
             std::string title = "Ebony - Ray Tracing Engine [" + std::to_string(timer.GetFPS()) + " FPS]";
@@ -247,7 +264,6 @@ void Application::Run() const {
 
         ImGui::BeginMainMenuBar();
         if (ImGui::BeginMenu("File")) {
-            ImGui::Separator();
             if (ImGui::MenuItem("Quit")) {
                 break;
             }
@@ -257,27 +273,83 @@ void Application::Run() const {
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin("Viewport");
-        // Resize framebuffer if needed
-        ImVec2 viewportSize = ImGui::GetContentRegionAvail();
-        if (viewportSize.x > 0 && viewportSize.y > 0 &&
-            (framebuffer->GetSpecification().width != (uint32_t)viewportSize.x ||
-             framebuffer->GetSpecification().height != (uint32_t)viewportSize.y)) {
-            framebuffer->Resize((uint32_t)viewportSize.x, (uint32_t)viewportSize.y);
+        ImVec2 sceneSize = ImGui::GetContentRegionAvail();
+        if (sceneSize.x > 0 && sceneSize.y > 0 &&
+            (framebuffer->GetSpecification().width != (uint32_t)sceneSize.x ||
+             framebuffer->GetSpecification().height != (uint32_t)sceneSize.y)) {
+            framebuffer->Resize((uint32_t)sceneSize.x, (uint32_t)sceneSize.y);
+            u_AspectRatio = sceneSize.x / sceneSize.y;
         }
-        ImGui::Image(framebuffer->GetColorAttachmentRendererID(), viewportSize, ImVec2(0, 1),
+        ImGui::Image(framebuffer->GetColorAttachmentRendererID(), sceneSize, ImVec2(0, 1),
                      ImVec2(1, 0) // Flip UVs for OpenGL
         );
         ImGui::End();
         ImGui::PopStyleVar();
 
-        ImGui::Begin("Project");
-        ImGui::Text("Last Render: %fms", timer.GetDeltaTime() * 1000.0f);
+        static int selectedSphereIndex = -1;
+        auto &spheres = scene.GetSpheres();
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::Begin("Hierarchy");
+        if (ImGui::TreeNodeEx("Scene", ImGuiTreeNodeFlags_DefaultOpen)) {
+            for (int i = 0; i < spheres.size(); i++) {
+                std::string name = "Sphere " + std::to_string(i);
+                if (ImGui::Selectable(name.c_str(), selectedSphereIndex == i)) {
+                    selectedSphereIndex = i;
+                }
+            }
+            ImGui::TreePop();
+        }
+        ImGui::Indent(6.0f);
+        if (ImGui::Selectable("Environmental Lighting", false)) {
+        }
+        if (ImGui::Selectable("Main Camera", false)) {
+        }
+        ImGui::Unindent(6.0f);
+        ImGui::End();
+        ImGui::PopStyleVar();
+
+        ImGui::Begin("Properties");
+        if (selectedSphereIndex >= 0 && selectedSphereIndex < spheres.size()) {
+            Sphere &s = spheres[selectedSphereIndex];
+
+            if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
+                ImGui::DragFloat3("Position", glm::value_ptr(s.center), 0.01f);
+                ImGui::DragFloat("Radius", &s.radius, 0.01f);
+                ImGui::TreePop();
+            }
+            if (ImGui::TreeNodeEx("Material", ImGuiTreeNodeFlags_DefaultOpen)) {
+                ImGui::ColorEdit4("Color", glm::value_ptr(s.material.color));
+                ImGui::ColorEdit3("Emission", glm::value_ptr(s.material.emission));
+                ImGui::DragFloat("Emission Strength", &s.material.emissionStrength, 0.01f);
+                ImGui::TreePop();
+            }
+        }
         ImGui::End();
 
         // Rendering
         framebuffer->Bind();
         Renderer::SetClearColor({0.1f, 0.1f, 0.1f, 1.0f});
         Renderer::Clear();
+
+        shader->Bind();
+        shader->SetUniformUInt2("u_ImageDimensions", static_cast<uint32_t>(sceneSize.x),
+                                static_cast<uint32_t>(sceneSize.y));
+        shader->SetUniformFloat("u_AspectRatio", u_AspectRatio);
+        shader->SetUniformFloat("u_CameraFocalLength", u_CameraFocalLength);
+        shader->SetUniformFloat("u_ViewPortSize", u_ViewPortSize);
+        shader->SetUniformUInt("u_MaxBounceCount", u_MaxBounceCount);
+        shader->SetUniformUInt("u_RaysPerPixel", u_RaysPerPixel);
+        shader->SetUniformUInt("u_NumRenderedFrames", u_NumRenderedFrames);
+        // shader.SetUniform3f("u_SkyColorHorizon", u_SkyColorHorizon.x, u_SkyColorHorizon.y, u_SkyColorHorizon.z);
+        // shader.SetUniform3f("u_SkyColorZenith", u_SkyColorZenith.x, u_SkyColorZenith.y, u_SkyColorZenith.z);
+        // shader.SetUniform3f("u_GroundColor", u_GroundColor.x, u_GroundColor.y, u_GroundColor.z);
+        // shader.SetUniform3f("u_SunLightDirection", u_SunLightDirection.x, u_SunLightDirection.y,
+        // u_SunLightDirection.z);
+        // shader.SetUniform1f("u_SunFocus", u_SunFocus);
+        // shader.SetUniform1f("u_SunIntensity", u_SunIntensity);
+
+        Renderer::UploadSceneToShader(scene, shader);
         Renderer::Submit(shader, vertexArray);
         framebuffer->Unbind();
 

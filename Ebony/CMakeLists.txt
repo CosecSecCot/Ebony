@@ -47,6 +47,7 @@ target_include_directories(Ebony PRIVATE
 find_package(OpenGL REQUIRED)
 target_link_libraries(Ebony PRIVATE glfw glad glm imgui OpenGL::GL)
 
+target_compile_definitions(Ebony PRIVATE INTER_FONT_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/inter.ttf")
 target_compile_definitions(Ebony PRIVATE BASIC_FRAG_SHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/src/Shaders/Basic.frag")
 target_compile_definitions(Ebony PRIVATE BASIC_VERT_SHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/src/Shaders/Basic.vert")
 

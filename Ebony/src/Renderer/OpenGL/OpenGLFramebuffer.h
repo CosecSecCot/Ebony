@@ -21,9 +21,6 @@ public:
     [[nodiscard]] const FramebufferSpecification &GetSpecification() const override { return specification; }
 
 private:
-    void Invalidate();
-
-private:
     uint32_t rendererID = 0;
     uint32_t colorAttachment = 0;
     uint32_t depthAttachment = 0;
