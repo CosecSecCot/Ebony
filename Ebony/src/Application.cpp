@@ -5,6 +5,8 @@
 #include "Renderer/Shader.h"
 #include "Renderer/VertexArray.h"
 #include "Timer.h"
+#include "UI/Panels/CameraPanel.h"
+#include "UI/Panels/EnvironmentPanel.h"
 #include "UI/Panels/HierarchyPanel.h"
 #include "UI/Panels/PropertiesPanel.h"
 #include "UI/Panels/ViewportPanel.h"
@@ -109,6 +111,12 @@ void Application::Run() {
     uint32_t u_MaxBounceCount = 3;
     uint32_t u_RaysPerPixel = 2;
     uint32_t u_NumRenderedFrames = 0;
+    glm::vec3 u_SkyColorHorizon = glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 u_SkyColorZenith = glm::vec3(0.5f, 0.7f, 1.0f);
+    glm::vec3 u_GroundColor = glm::vec3(0.25f, 0.25f, 0.25f);
+    glm::vec3 u_SunLightDirection = glm::normalize(glm::vec3(1.0f, 1.0f, -1.0f));
+    float u_SunFocus = 10.0f;
+    float u_SunIntensity = 1.0f;
 
     ImVec2 sceneSize;
     static int selectedSphereIndex = -1;
@@ -116,6 +124,9 @@ void Application::Run() {
     ui.RegisterPanel(std::make_unique<ViewportPanel>(framebuffer, u_AspectRatio, sceneSize));
     ui.RegisterPanel(std::make_unique<HierarchyPanel>(scene, selectedSphereIndex));
     ui.RegisterPanel(std::make_unique<PropertiesPanel>(scene, selectedSphereIndex));
+    ui.RegisterPanel(std::make_unique<EnvironmentPanel>(u_SkyColorHorizon, u_SkyColorZenith, u_GroundColor,
+                                                        u_SunLightDirection, u_SunFocus, u_SunIntensity));
+    ui.RegisterPanel(std::make_unique<CameraPanel>(u_CameraFocalLength));
 
     while (!glfwWindowShouldClose(appWindow)) {
         timer.Tick();
@@ -143,13 +154,14 @@ void Application::Run() {
         shader->SetUniformUInt("u_MaxBounceCount", u_MaxBounceCount);
         shader->SetUniformUInt("u_RaysPerPixel", u_RaysPerPixel);
         shader->SetUniformUInt("u_NumRenderedFrames", u_NumRenderedFrames);
-        // shader.SetUniform3f("u_SkyColorHorizon", u_SkyColorHorizon.x, u_SkyColorHorizon.y, u_SkyColorHorizon.z);
-        // shader.SetUniform3f("u_SkyColorZenith", u_SkyColorZenith.x, u_SkyColorZenith.y, u_SkyColorZenith.z);
-        // shader.SetUniform3f("u_GroundColor", u_GroundColor.x, u_GroundColor.y, u_GroundColor.z);
-        // shader.SetUniform3f("u_SunLightDirection", u_SunLightDirection.x, u_SunLightDirection.y,
-        // u_SunLightDirection.z);
-        // shader.SetUniform1f("u_SunFocus", u_SunFocus);
-        // shader.SetUniform1f("u_SunIntensity", u_SunIntensity);
+        shader->SetUniformFloat3("u_SkyColorHorizon", u_SkyColorHorizon.x, u_SkyColorHorizon.y, u_SkyColorHorizon.z);
+        shader->SetUniformFloat3("u_SkyColorZenith", u_SkyColorZenith.x, u_SkyColorZenith.y, u_SkyColorZenith.z);
+        shader->SetUniformFloat3("u_GroundColor", u_GroundColor.x, u_GroundColor.y, u_GroundColor.z);
+        shader->SetUniformFloat3("u_SunLightDirection", u_SunLightDirection.x, u_SunLightDirection.y,
+                                 u_SunLightDirection.z);
+        shader->SetUniformFloat("u_SunFocus", u_SunFocus);
+        shader->SetUniformFloat("u_SunIntensity", u_SunIntensity);
+
         Renderer::UploadSceneToShader(scene, shader);
         Renderer::Submit(shader, vertexArray);
         framebuffer->Unbind();

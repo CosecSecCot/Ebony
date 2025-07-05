@@ -19,7 +19,10 @@ void UIManager::Init(GLFWwindow *window) {
     UIManager::SetStyle();
 
     io.FontGlobalScale = 1.0f;
+    ImFontConfig config;
+    config.MergeMode = true;
     io.Fonts->AddFontFromFileTTF(INTER_FONT_PATH, 14.0f);
+    io.Fonts->AddFontFromFileTTF(ICON_FONT_PATH, 16.0f, &config);
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
 #ifdef __APPLE__

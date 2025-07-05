@@ -13,7 +13,7 @@ public:
 
     void Render() override {
 
-        ImGui::Begin("Hierarchy");
+        ImGui::Begin(" Hierarchy");
 
         // Search bar
         char buff[256];
@@ -28,7 +28,7 @@ public:
             bool visible = true;
             auto &spheres = scene.GetSpheres();
             for (int i = 0; i < spheres.size(); ++i) {
-                std::string label = "Sphere " + std::to_string(i);
+                std::string label = "󰆧 Sphere " + std::to_string(i);
 
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
