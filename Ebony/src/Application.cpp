@@ -9,6 +9,7 @@
 #include "UI/Panels/EnvironmentPanel.h"
 #include "UI/Panels/HierarchyPanel.h"
 #include "UI/Panels/PropertiesPanel.h"
+#include "UI/Panels/SettingsPanel.h"
 #include "UI/Panels/ViewportPanel.h"
 
 #include <glad/glad.h>
@@ -98,9 +99,10 @@ void Application::Run() {
     auto shader = std::shared_ptr<Shader>(Shader::CreateFromFiles(BASIC_VERT_SHADER_PATH, BASIC_FRAG_SHADER_PATH));
 
     Scene scene;
+    scene.AddSphere({glm::vec3(-0.6f, 0.0f, -1.2f), 0.5f, RayTracingMaterial{glm::vec4(1), glm::vec3(1), 0.0f}});
     scene.AddSphere({glm::vec3(0.5f, 0.5f, -0.5f), 0.5f, RayTracingMaterial{glm::vec4(1), glm::vec3(1), 0.0f}});
-    scene.AddSphere(
-        {glm::vec3(0.0f, 0.0f, -2.0f), 0.75f, RayTracingMaterial{glm::vec4(glm::vec3(0.5), 1), glm::vec3(1), 0.0f}});
+    scene.AddSphere({glm::vec3(0.0f, -100.5f, -1.0f), 100.0f,
+                     RayTracingMaterial{glm::vec4(glm::vec3(0.5), 1), glm::vec3(1), 0.0f}});
 
     Renderer::Init();
 
@@ -108,8 +110,8 @@ void Application::Run() {
     float u_AspectRatio = 1280.0f / 720.0f;
     float u_CameraFocalLength = 1.0f;
     float u_ViewPortSize = 2.0f;
-    uint32_t u_MaxBounceCount = 3;
-    uint32_t u_RaysPerPixel = 2;
+    int u_MaxBounceCount = 3;
+    int u_RaysPerPixel = 2;
     uint32_t u_NumRenderedFrames = 0;
     glm::vec3 u_SkyColorHorizon = glm::vec3(1.0f, 1.0f, 1.0f);
     glm::vec3 u_SkyColorZenith = glm::vec3(0.5f, 0.7f, 1.0f);
@@ -127,6 +129,8 @@ void Application::Run() {
     ui.RegisterPanel(std::make_unique<EnvironmentPanel>(u_SkyColorHorizon, u_SkyColorZenith, u_GroundColor,
                                                         u_SunLightDirection, u_SunFocus, u_SunIntensity));
     ui.RegisterPanel(std::make_unique<CameraPanel>(u_CameraFocalLength));
+    ui.RegisterPanel(
+        std::make_unique<SettingsPanel>(u_CameraFocalLength, u_ViewPortSize, u_MaxBounceCount, u_RaysPerPixel));
 
     while (!glfwWindowShouldClose(appWindow)) {
         timer.Tick();

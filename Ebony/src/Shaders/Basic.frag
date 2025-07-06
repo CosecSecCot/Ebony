@@ -178,7 +178,7 @@ vec3 GetEnvironmentLight(Ray ray) {
     float sun = pow(max(0.0, dot(ray.dir, -u_SunLightDirection)), u_SunFocus) * u_SunIntensity;
 
     // Ground blending
-    float groundToSkyT = smoothstep(-0.01, 0.0, ray.dir.y);
+    float groundToSkyT = smoothstep(-0.05, 0.0, ray.dir.y);
     float sunMask = step(1.0, groundToSkyT); // Equivalent to (groundToSkyT >= 1 ? 1.0 : 0.0)
 
     // Final blending
