@@ -79,14 +79,17 @@ void Application::Run() {
 
     // clang-format off
     float vertices[] = {
-        1.0f,   1.0f,  0.0f,
-        1.0f,  -1.0f,  0.0f,
-       -1.0f,  -1.0f,  0.0f,
-       -1.0f,   1.0f,  0.0f 
+         1.0f,   1.0f,  0.0f,
+         1.0f,  -1.0f,  0.0f,
+        -1.0f,  -1.0f,  0.0f,
+        -1.0f,   1.0f,  0.0f
     };
     // clang-format on
 
-    uint32_t indices[] = {2, 0, 1, 2, 3, 0};
+    uint32_t indices[] = {
+        2, 0, 1,
+        2, 3, 0
+    };
 
     auto vertexArray = std::shared_ptr<VertexArray>(VertexArray::Create());
     auto vertexBuffer = std::shared_ptr<VertexBuffer>(VertexBuffer::Create(vertices, sizeof(vertices)));

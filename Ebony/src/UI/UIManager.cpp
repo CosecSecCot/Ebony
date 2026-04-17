@@ -161,8 +161,6 @@ void UIManager::Render() {
         ImGui::DockSpaceOverViewport(-1, ImGui::GetMainViewport());
     }
 
-    ImGui::ShowDemoWindow();
-
     for (auto &panel : panels)
         panel->Render();
 }

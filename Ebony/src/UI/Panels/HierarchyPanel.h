@@ -16,9 +16,8 @@ public:
         ImGui::Begin(" Hierarchy");
 
         // Search bar
-        char buff[256];
-        ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-        ImGui::InputTextWithHint("##filter", "Filter", buff, sizeof(buff));
+        ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - 18);
+        ImGui::InputTextWithHint("", "Filter", searchString, sizeof(searchString));
         ImGui::Separator();
 
         if (ImGui::BeginTable("HierarchyTable", 2)) {
@@ -63,6 +62,7 @@ public:
 private:
     Scene &scene;
     int &selectedIndex;
+    char searchString[256] = "";
 };
 
 } // namespace Ebony

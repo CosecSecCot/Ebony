@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Renderer/Scene/Scene.h"
 #include "UI/Panel.h"
 
 #include <glm/gtc/type_ptr.hpp>
@@ -24,7 +23,7 @@ public:
 
         if (strcmp(skyType[currentSelection], "Solid Color") == 0) {
             ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f),
-                               u8" \"Solid Color\" sky has not been implemented yet!");
+                               " \"Solid Color\" sky has not been implemented yet!");
         }
 
         if (ImGui::TreeNodeEx("Sky Color", ImGuiTreeNodeFlags_DefaultOpen)) {

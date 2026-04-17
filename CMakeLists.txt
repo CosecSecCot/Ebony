@@ -4,6 +4,9 @@ project(EbonyProject)
 
 add_executable(ebony-engine main.cpp)
 
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 target_include_directories(ebony-engine PRIVATE
     Ebony/src
     Ebony/vendor/GLFW/include
@@ -18,5 +21,3 @@ set_target_properties(ebony-engine PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/ebony-engine
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/ebony-engine
 )
-
-set_property(TARGET ebony-engine PROPERTY CXX_STANDARD 17)

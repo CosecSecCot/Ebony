@@ -36,7 +36,7 @@ Executable is going to be in:
 
 
 ## Current Progress
-- [x] ~~ Red triangle in ImGui Viewport~~
+- [x] ~~Red triangle in ImGui Viewport~~
 - [x] Renderer + OpenGL abstractions
 - [x] UI system working with panels
 - [x] Environment + lighting settings panel
